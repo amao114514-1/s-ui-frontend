@@ -1,9 +1,12 @@
 import axios from 'axios'
 
-axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8'
-axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
+const api = axios.create({
+    baseURL: "./",
+})
 
-axios.defaults.baseURL = "./"
+api.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8'
+api.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
+
 const pendingRequests = new Map()
 let csrfToken = ''
 
@@ -13,7 +16,7 @@ export const setCsrfToken = (token: string | undefined) => {
 
 export const getCsrfToken = () => csrfToken
 
-axios.interceptors.request.use(
+api.interceptors.request.use(
     (config) => {
         // Generate a unique key for the request
         const requestKey = `${config.method}:${config.url}`
@@ -42,7 +45,7 @@ axios.interceptors.request.use(
     (error) => Promise.reject(error),
 )
 
-axios.interceptors.response.use(
+api.interceptors.response.use(
     (response) => {
         // Remove the request from the pending requests map
         const requestKey = `${response.config.method}:${response.config.url}`
@@ -61,7 +64,5 @@ axios.interceptors.response.use(
         return Promise.reject(error)
     }
 )
-
-const api = axios.create()
 
 export default api
