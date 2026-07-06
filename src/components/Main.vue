@@ -101,13 +101,17 @@
                   <v-col cols="9">
                     <v-chip density="compact" color="primary" variant="flat" v-if="tilesData.sys?.ipv4?.length>0">
                       <v-tooltip activator="parent" location="top" style="direction: ltr;">
-                        <span v-html="tilesData.sys?.ipv4?.join('<br />')"></span>
+                        <template v-for="ip in tilesData.sys?.ipv4" :key="ip">
+                          <span v-text="ip"></span><br />
+                        </template>
                       </v-tooltip>
                       IPv4
                     </v-chip>
                     <v-chip density="compact" color="primary" variant="flat" v-if="tilesData.sys?.ipv6?.length>0">
                       <v-tooltip activator="parent" location="top" style="direction: ltr;">
-                        <span v-html="tilesData.sys?.ipv6?.join('<br />')"></span>
+                        <template v-for="ip in tilesData.sys?.ipv6" :key="ip">
+                          <span v-text="ip"></span><br />
+                        </template>
                       </v-tooltip>
                       IPv6
                     </v-chip>

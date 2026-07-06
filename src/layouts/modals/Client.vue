@@ -41,6 +41,15 @@
                 <v-col cols="12" sm="6" md="4">
                   <v-text-field v-model="client.remark" :label="$t('client.remark')" hide-details></v-text-field>
                 </v-col>
+                <v-col cols="12" v-if="id > 0">
+                  <v-text-field
+                    v-model="client.subscriptionToken"
+                    label="Subscription Token"
+                    readonly
+                    hide-details
+                    append-inner-icon="mdi-refresh"
+                    @click:append-inner="rotateSubscriptionToken" />
+                </v-col>
               </v-row>
               <v-row>
                 <v-col cols="12" sm="6" md="4">
@@ -231,6 +240,7 @@ import DatePick from '@/components/DateTime.vue'
 import { HumanReadable } from '@/plugins/utils'
 import Data from '@/store/modules/data'
 import { locale } from '@/locales'
+import HttpUtils from '@/plugins/httputil'
 
 export default {
   props: ['visible', 'id', 'inboundTags', 'groups'],
@@ -305,6 +315,15 @@ export default {
       this.client.totalDown = (this.client.totalDown ?? 0) + this.client.down
       this.client.up = 0
       this.client.down = 0
+    },
+    async rotateSubscriptionToken() {
+      if (!this.client.id) return
+      const response = await HttpUtils.post('api/rotateSubscriptionToken', { id: this.client.id })
+      if (response.success) {
+        this.client.subscriptionToken = response.obj
+        const stored = Data().clients.find((c: any) => c.id == this.client.id)
+        if (stored) stored.subscriptionToken = response.obj
+      }
     }
   },
   computed: {

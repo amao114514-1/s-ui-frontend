@@ -9,10 +9,10 @@ const props = defineProps({
 
 const data = computed(() => {
   const d = props.tilesData
-  if (!d.mem && !d.cpu) return { percent: 0, text: '-' }
+  if (!d.mem && !d.cpu) return { percent: 0, text: '-', simple: true }
   switch (props.type) {
     case 'g-cpu':
-      return { percent: d.cpu, text: Math.ceil(d.cpu) + "%" }
+      return { percent: d.cpu, text: Math.ceil(d.cpu) + "%", simple: true }
     case 'g-mem':
       return gaugeData(d.mem)
     case 'g-dsk':
@@ -20,17 +20,21 @@ const data = computed(() => {
     case 'g-swp':
       return gaugeData(d.swp)
   }
-  return { percent: 0, text: '-'}
+  return { percent: 0, text: '-', simple: true}
 })
 
 const gaugeData = (d:any) :any => {
-  if (!d) return { percent: 0, text: '-' }
+  if (!d) return { percent: 0, text: '-', simple: true }
   const curr = HumanReadable.sizeFormat(d.current,0).split(' ')
   const total = HumanReadable.sizeFormat(d.total,0).split(' ')
   if (curr[1] == total[1]) curr[1] = ''
   return {
     percent: Math.ceil(d.current*100/d.total),
-    text: curr[0] + "<sup>" + (curr[1]?? ' ') + "</sup>/" +  total[0] + "<sup>" + (total[1]?? '') + "</sup>"
+    simple: false,
+    currentValue: curr[0],
+    currentUnit: curr[1] ?? ' ',
+    totalValue: total[0],
+    totalUnit: total[1] ?? '',
   }
 }
 
@@ -58,7 +62,12 @@ const gaugeColor = computed(() => {
           background: `rgb(var(--v-theme-${gaugeColor}))`
           }">
       </div>
-      <div class="gauge__cover"><span dir="ltr" v-html="data.text"></span></div>
+      <div class="gauge__cover">
+        <span v-if="data.simple" dir="ltr" v-text="data.text"></span>
+        <span v-else dir="ltr">
+          {{ data.currentValue }}<sup>{{ data.currentUnit }}</sup>/{{ data.totalValue }}<sup>{{ data.totalUnit }}</sup>
+        </span>
+      </div>
     </div>
   </div>
 </template>

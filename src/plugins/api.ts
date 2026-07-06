@@ -5,6 +5,13 @@ axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
 
 axios.defaults.baseURL = "./"
 const pendingRequests = new Map()
+let csrfToken = ''
+
+export const setCsrfToken = (token: string | undefined) => {
+    csrfToken = token ?? ''
+}
+
+export const getCsrfToken = () => csrfToken
 
 axios.interceptors.request.use(
     (config) => {
@@ -26,6 +33,9 @@ axios.interceptors.request.use(
         
         if (config.data instanceof FormData) {
             config.headers['Content-Type'] = 'multipart/form-data'
+        }
+        if (csrfToken && ['post', 'put', 'patch', 'delete'].includes((config.method ?? '').toLowerCase())) {
+            config.headers['X-CSRF-Token'] = csrfToken
         }
         return config
     },

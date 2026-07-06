@@ -41,6 +41,7 @@
 </template>
 
 <script lang="ts">
+import api from '@/plugins/api'
 import HttpUtils from '@/plugins/httputil'
 export default {
   props: ['control', 'visible'],
@@ -50,12 +51,23 @@ export default {
     }
   },
   methods: {
-    backup() {
-      const excludeOption = this.exclude.length>0 ? '?exclude=' +this.exclude.join(',') : ''
-      window.location.href = 'api/getdb' + excludeOption
+    downloadBlob(blob: Blob, fallbackName: string) {
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = fallbackName
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
     },
-    config() {
-      window.location.href = 'api/singbox-config'
+    async backup() {
+      const response = await api.post('api/getdb', { exclude: this.exclude.join(',') }, { responseType: 'blob' })
+      this.downloadBlob(response.data, 's-ui.db')
+    },
+    async config() {
+      const response = await api.post('api/singbox-config', {}, { responseType: 'blob' })
+      this.downloadBlob(response.data, 'config.json')
     },
     restore() {
       const fileInput = document.createElement('input')

@@ -41,7 +41,9 @@
             </v-btn>
           </v-col>
         </v-row>
-        <v-card style="margin-top: .5rem;" color="background" dir="ltr" v-html="lines.join('<br />')"></v-card>
+        <v-card class="log-lines" color="background" dir="ltr">
+          <div v-for="(line, i) in lines" :key="i" v-text="line"></div>
+        </v-card>
       </v-card-text>
     </v-card>
   </v-dialog>
@@ -88,3 +90,13 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+.log-lines {
+  margin-top: .5rem;
+  padding: .75rem;
+  white-space: pre-wrap;
+  overflow: auto;
+  font-family: monospace;
+}
+</style>

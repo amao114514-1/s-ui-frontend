@@ -2,6 +2,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Login from '@/views/Login.vue'
 import Data from '@/store/modules/data'
+import api, { setCsrfToken } from '@/plugins/api'
 
 const routes = [
   {
@@ -86,17 +87,28 @@ const router = createRouter({
 const DEFAULT_TITLE = 'S-UI'
 let intervalId:any
 
+const isAuthenticated = async () => {
+  try {
+    const resp = await api.get('api/auth', { params: { t: Date.now() } })
+    if (resp.data?.success && resp.data?.obj?.csrfToken) {
+      setCsrfToken(resp.data.obj.csrfToken)
+      return true
+    }
+  } catch {
+    setCsrfToken('')
+  }
+  return false
+}
+
 // Navigation guard to check authentication state
-router.beforeEach((to) => {
-  // Check the session cookie
-  const sessionCookie = document.cookie.split(';').find(cookie => cookie.trim().startsWith('s-ui='))
-  const isAuthenticated = !!sessionCookie
+router.beforeEach(async (to) => {
+  const authenticated = await isAuthenticated()
 
   // If the route requires authentication and the user is not authenticated, redirect to /login
-  if (to.meta.requiresAuth && !isAuthenticated) {
+  if (to.meta.requiresAuth && !authenticated) {
     return '/login'
   }
-  if (to.path === '/login' && isAuthenticated) {
+  if (to.path === '/login' && authenticated) {
     // If already authenticated and visiting /login, redirect to '/'
     return '/'
   }

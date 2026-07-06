@@ -10,6 +10,7 @@ export interface Client {
   id?: number
 	enable: boolean
 	name: string
+  subscriptionToken?: string
 	config?: Config
 	inbounds: number[]
   links?: Link[]
@@ -33,6 +34,7 @@ export interface Client {
 const defaultClient: Client = {
   enable: true,
   name: "",
+  subscriptionToken: "",
   config: {},
   inbounds: [],
   links: [],

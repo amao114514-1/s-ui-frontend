@@ -1,4 +1,4 @@
-import api from './api'
+import api, { setCsrfToken } from './api'
 import { i18n } from '@/locales'
 import router from '@/router'
 import { push } from 'notivue'
@@ -35,8 +35,9 @@ function _handleMsg(msg: any): void {
 }
 
 export const logout = async () => {
-  const response = await HttpUtils.get('api/logout')
+  const response = await HttpUtils.post('api/logout', {})
   if(response.success){
+    setCsrfToken('')
     router.push('/login')
   }
 }
@@ -47,6 +48,9 @@ function _respToMsg(resp: any): Msg {
     return { success: true, msg: "", obj: null }
   } else if (isMsg(data)) {
     if (data.hasOwnProperty('success')) {
+        if (data.success && data.obj?.csrfToken) {
+            setCsrfToken(data.obj.csrfToken)
+        }
         return { success: data.success, msg: data.msg, obj: data.obj || null }
     } else {
         return data
