@@ -212,6 +212,13 @@ export default {
     },
     setAllInbounds(){
       this.bulkData.clientInbounds = this.inboundTags.map((i:any) => i.value).sort()
+    },
+    normalizeResetDays() {
+      if (this.bulkData.autoReset || this.bulkData.delayStart) {
+        if (!this.bulkData.resetDays || this.bulkData.resetDays < 1) this.bulkData.resetDays = 1
+      } else {
+        this.bulkData.resetDays = 0
+      }
     }
   },
   computed: {},
@@ -220,6 +227,12 @@ export default {
       if (newValue) {
         this.resetData()
       }
+    },
+    'bulkData.autoReset'() {
+      this.normalizeResetDays()
+    },
+    'bulkData.delayStart'() {
+      this.normalizeResetDays()
     },
   },
   components: { DatePick },

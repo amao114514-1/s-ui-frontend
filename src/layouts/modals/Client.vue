@@ -316,6 +316,13 @@ export default {
       this.client.up = 0
       this.client.down = 0
     },
+    normalizeResetDays() {
+      if (this.client.autoReset || this.client.delayStart) {
+        if (!this.client.resetDays || this.client.resetDays < 1) this.client.resetDays = 1
+      } else {
+        this.client.resetDays = 0
+      }
+    },
     async rotateSubscriptionToken() {
       if (!this.client.id) return
       const response = await HttpUtils.post('api/rotateSubscriptionToken', { id: this.client.id })
@@ -343,7 +350,7 @@ export default {
       get() { return this.client.delayStart?? false },
       set(v:boolean) {
         this.client.delayStart = v
-        this.client.resetDays = v ? 1 : 0
+        this.normalizeResetDays()
         if (v && !this.autoReset) this.client.expiry = 0
       }
     },
@@ -351,7 +358,7 @@ export default {
       get() { return this.client.autoReset?? false },
       set(v:boolean) {
         this.client.autoReset = v
-        this.client.resetDays = v ? 1 : 0
+        this.normalizeResetDays()
         if (!v) this.client.nextReset = 0
       }
     },
